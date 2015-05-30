@@ -687,6 +687,7 @@
     </GridLayout>
 
     <GridLayout
+        android:id="@+id/lines"
         android:layout_width="fill_parent"
         android:layout_height="420dp">
 
@@ -719,10 +720,21 @@
             android:layout_height="fill_parent"
             android:id="@+id/r4"
             android:layout_row="0"
-            android:layout_column="3"
+            android:layout_column="4"
             android:background="#000000"
             android:layout_marginLeft="120dp" />
+
     </GridLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:id="@+id/textView"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/lines"
+            />
 
     </RelativeLayout>
 </HorizontalScrollView>

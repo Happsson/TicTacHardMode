@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -18,6 +19,8 @@ public class MainActivity extends Activity{
 
     final int ACTIVECOLOR = Color.argb(255,155,228,102);
     final int INACTIVECOLOR = Color.argb(255,244,142,102);
+
+    TextView tv;
 
     Button[][] bs = new Button[9][9];
 
@@ -32,9 +35,11 @@ public class MainActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tv = (TextView) findViewById(R.id.textView);
+        tv.setText("Player X's turn");
         activeSquare = -1; //no
         for(int i = 0; i < 9 ; i++){
-            activeSquares[i] = 'C'; //zero means square is still in game
+            activeSquares[i] = 'C'; //C means square is still in game
         }
 
         GridLayout hv = (GridLayout) findViewById(R.id.view);
@@ -49,9 +54,8 @@ public class MainActivity extends Activity{
                 @Override
                 public void onClick(View v) {
 
-                    clickOn(v);
-                    if(currentTurn == 'X') currentTurn = 'O';
-                    else if(currentTurn == 'O') currentTurn = 'X';
+                    if(clickOn(v)) changeTurn();
+
                 }
             });
             x++;
@@ -62,11 +66,20 @@ public class MainActivity extends Activity{
         }
     }
 
-    private void clickOn(View v){
+    private void changeTurn() {
+        if(currentTurn == 'X') currentTurn = 'O';
+        else if(currentTurn == 'O') currentTurn = 'X';
+
+        tv.setText("Player "+ currentTurn + "'s turn");
+    }
+
+    private boolean clickOn(View v){
 
         String name = getResources().getResourceEntryName(v.getId());
+
+
         if(name.length() == 3) {
-            try {
+
                 int y = Integer.parseInt("" + name.charAt(1));
                 int x = Integer.parseInt("" + name.charAt(2));
                 int thisSquare = getCurrentSquare(x, y);
@@ -76,57 +89,54 @@ public class MainActivity extends Activity{
 
                     if (thisSquare == activeSquare || activeSquare == -1) {
 
-                        activeSquare = getCorrespondingWorldSquare(x,y);
+                        //Set the last square to inactive before changing this value.
+                        setSquareColor(activeSquare, INACTIVECOLOR);
 
-                       //bs[x][y].setBackgroundColor(INACTIVECOLOR);
+                        //Get active square.
+                        activeSquare = getCorrespondingWorldSquare(x, y);
+
+                        //bs[x][y].setBackgroundColor(INACTIVECOLOR);
                         bs[x][y].setText("" + currentTurn);
 
 
                         char wonChar = isSquareWon(thisSquare);
                         if (wonChar != 'C') {
-                            Toast.makeText(this.getApplicationContext(), "" + wonChar +" won square " + thisSquare, Toast.LENGTH_LONG).show();
+                            Toast.makeText(this.getApplicationContext(), "" + wonChar + " won square " + thisSquare, Toast.LENGTH_LONG).show();
                             activeSquares[thisSquare] = wonChar; //Square no longer in play
-                            activeSquare = -1;
                         }
 
                         char c = checkIfGameIsWon();
-                        if(c == 'X' || c == 'O'){
+                        if (c == 'X' || c == 'O') {
                             Toast.makeText(this.getApplicationContext(), c + " wins!", Toast.LENGTH_LONG).show();
                         }
 
-                    }
-
-                }else{
-                    activeSquare = -1;
-                }
-
-                for(int i = 0; i < 9; i++) {
-                    if (activeSquare == -1) {
-
-                        if (activeSquares[i] == 'C') setSquareColor(i, ACTIVECOLOR);
 
                     } else {
-
-                        if (i != activeSquare || activeSquares[i] != 'C') {
-                            setSquareColor(i, INACTIVECOLOR);
-                        } else {
-                            setSquareColor(i, ACTIVECOLOR);
-                        }
+                        //activeSquare = -1;
                     }
+
+                    if( activeSquares[ activeSquare ] != 'C'){
+                       activeSquare = -1;
+                    }
+
+                    if (activeSquare == -1) {
+                        for (int i = 0; i < 9; i++) {
+                            if (activeSquares[i] == 'C') setSquareColor(i, ACTIVECOLOR);
+                        }
+                    } else {
+                        setSquareColor(activeSquare, ACTIVECOLOR);
+                    }
+                    return true;
                 }
-
-            } catch (NumberFormatException e) {
-
-
-            }
         }
+        return false;
     }
 
     private char checkIfGameIsWon() {
         for(int i = 0; i < 2; i++) {
             char c = 'a';
-         if( i == 0) c = 'X';
-         if( i == 1) c = 'O';
+            if( i == 0) c = 'X';
+            if( i == 1) c = 'O';
 
             //row
             if (activeSquares[0] == c && activeSquares[1] == c && activeSquares[2] == c)
@@ -163,18 +173,27 @@ public class MainActivity extends Activity{
         if(x % 3 == 0 && y % 3 == 2) return 6;
         if(x % 3 == 1 && y % 3 == 2) return 7;
         if(x % 3 == 2 && y % 3 == 2) return 8;
-    else return -1;
+        else return -1;
     }
 
     private void setSquareColor(int square, int color){
 
-        int[] xy = getsquareStartingPosition(square);
-        for(int x = 0; x < 3; x++){
-            for(int y = 0; y < 3; y++){
-               bs[ xy[0] + x ][ xy[1] + y].setBackgroundColor(color);
+        if(square != -1) {
+            int[] xy = getsquareStartingPosition(square);
+            for (int x = 0; x < 3; x++) {
+                for (int y = 0; y < 3; y++) {
+                    bs[xy[0] + x][xy[1] + y].setBackgroundColor(color);
+                }
+            }
+
+        }else{
+            for(int i = 0; i < 9; i++){
+                for(int j = 0; j < 9 ; j++){
+                    bs[i][j].setBackgroundColor(color);
+                }
+
             }
         }
-
     }
 
     private int getCurrentSquare(int x, int y){
@@ -200,9 +219,9 @@ public class MainActivity extends Activity{
         int xy[] = new int[2];
         switch(square){
             case 0:
-               xy[0] = 0;
-               xy[1] = 0;
-               break;
+                xy[0] = 0;
+                xy[1] = 0;
+                break;
             case 1:
                 xy[0] = 3;
                 xy[1] = 0;
@@ -247,18 +266,18 @@ public class MainActivity extends Activity{
         int[] xy = getsquareStartingPosition(square);
         for(int i = 0; i < 3; i++) {
             if (
-                bs[ xy[ 0 ] ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X' &&
-                bs[ xy[ 0 ] + 1 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X' &&
-                bs[ xy[ 0 ] + 2 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X')
+                    bs[ xy[ 0 ] ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X' &&
+                            bs[ xy[ 0 ] + 1 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X' &&
+                            bs[ xy[ 0 ] + 2 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X')
 
             {
                 c = 'X';
             }
 
             if (
-                bs[ xy[ 0 ] + i] [ xy[ 1 ]].getText().toString().charAt(0) == 'X' &&
-                bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'X' &&
-                bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'X')
+                    bs[ xy[ 0 ] + i] [ xy[ 1 ]].getText().toString().charAt(0) == 'X' &&
+                            bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'X' &&
+                            bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'X')
 
             {
                 c = 'X';
@@ -342,6 +361,7 @@ public class MainActivity extends Activity{
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Toast.makeText(this.getApplication(), "It's " + currentTurn + " turn", Toast.LENGTH_LONG).show();
             return true;
         }
 
