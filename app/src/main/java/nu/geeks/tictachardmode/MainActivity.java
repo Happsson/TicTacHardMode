@@ -84,7 +84,10 @@ public class MainActivity extends Activity{
                 int x = Integer.parseInt("" + name.charAt(2));
                 int thisSquare = getCurrentSquare(x, y);
 
-                if (activeSquares[thisSquare] == 'C') {
+
+                if (activeSquares[thisSquare] == 'C' &&
+                        bs[x][y].getText().toString() == " ") {
+
 
 
                     if (thisSquare == activeSquare || activeSquare == -1) {
@@ -107,6 +110,12 @@ public class MainActivity extends Activity{
 
                         char c = checkIfGameIsWon();
                         if (c == 'X' || c == 'O') {
+                            for(int a = 0; a < 9 ; a++){
+                                for(int b = 0; b < 9; b++ ){
+                                    bs[a][b].setText("" + c);
+                                    bs[a][b].setBackgroundColor(Color.WHITE);
+                                }
+                            }
                             Toast.makeText(this.getApplicationContext(), c + " wins!", Toast.LENGTH_LONG).show();
                         }
 
