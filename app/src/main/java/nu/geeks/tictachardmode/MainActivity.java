@@ -70,6 +70,7 @@ public class MainActivity extends Activity{
                 int y = Integer.parseInt("" + name.charAt(1));
                 int x = Integer.parseInt("" + name.charAt(2));
                 int thisSquare = getCurrentSquare(x, y);
+
                 if (activeSquares[thisSquare] == 'C') {
 
 
@@ -85,22 +86,35 @@ public class MainActivity extends Activity{
                         if (wonChar != 'C') {
                             Toast.makeText(this.getApplicationContext(), "" + wonChar +" won square " + thisSquare, Toast.LENGTH_LONG).show();
                             activeSquares[thisSquare] = wonChar; //Square no longer in play
+                            activeSquare = -1;
                         }
 
                         char c = checkIfGameIsWon();
                         if(c == 'X' || c == 'O'){
                             Toast.makeText(this.getApplicationContext(), c + " wins!", Toast.LENGTH_LONG).show();
                         }
-                        for(int i = 0; i < 9; i++){
-                            if(i != activeSquare){
-                                setSquareColor(i,INACTIVECOLOR);
-                            }else{
-                                setSquareColor(i,ACTIVECOLOR);
-                            }
-                        }
+
                     }
 
+                }else{
+                    activeSquare = -1;
                 }
+
+                for(int i = 0; i < 9; i++) {
+                    if (activeSquare == -1) {
+
+                        if (activeSquares[i] == 'C') setSquareColor(i, ACTIVECOLOR);
+
+                    } else {
+
+                        if (i != activeSquare || activeSquares[i] != 'C') {
+                            setSquareColor(i, INACTIVECOLOR);
+                        } else {
+                            setSquareColor(i, ACTIVECOLOR);
+                        }
+                    }
+                }
+
             } catch (NumberFormatException e) {
 
 
