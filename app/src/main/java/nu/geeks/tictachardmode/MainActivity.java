@@ -16,23 +16,33 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity{
 
+    final int ACTIVECOLOR = Color.argb(255,155,228,102);
+    final int INACTIVECOLOR = Color.argb(255,244,142,102);
+
     Button[][] bs = new Button[9][9];
 
+    char[] activeSquares = new char[9];
 
 
-
+    char currentTurn = 'X';
+    int activeSquare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        activeSquare = -1; //no
+        for(int i = 0; i < 9 ; i++){
+            activeSquares[i] = 'C'; //zero means square is still in game
+        }
+
         GridLayout hv = (GridLayout) findViewById(R.id.view);
         int x = 0; //this is a stupid way to keep track of the iteration below
         int y = 0;
         for(int i = 0; i < hv.getChildCount(); i++){
             bs[x][y] = (Button) findViewById( hv.getChildAt(i).getId() );
-            bs[x][y].setBackgroundColor(Color.GREEN);
+            bs[x][y].setBackgroundColor(ACTIVECOLOR);
             bs[x][y].setText(" ");
             bs[x][y].setOnClickListener(new View.OnClickListener() {
 
@@ -40,6 +50,8 @@ public class MainActivity extends Activity{
                 public void onClick(View v) {
 
                     clickOn(v);
+                    if(currentTurn == 'X') currentTurn = 'O';
+                    else if(currentTurn == 'O') currentTurn = 'X';
                 }
             });
             x++;
@@ -47,26 +59,109 @@ public class MainActivity extends Activity{
                 y++;
                 x = 0;
             }
-
-
         }
-
-
-
-
     }
 
     private void clickOn(View v){
-        for(int x = 0; x < 9; x++){
-            for(int y = 0; y < 9; y++){
-                if(v.getId() == bs[x][y].getId()){
-                    bs[x][y].setBackgroundColor(Color.RED);
+
+        String name = getResources().getResourceEntryName(v.getId());
+        if(name.length() == 3) {
+            try {
+                int y = Integer.parseInt("" + name.charAt(1));
+                int x = Integer.parseInt("" + name.charAt(2));
+                int thisSquare = getCurrentSquare(x, y);
+                if (activeSquares[thisSquare] == 'C') {
+
+
+                    if (thisSquare == activeSquare || activeSquare == -1) {
+
+                        activeSquare = getCorrespondingWorldSquare(x,y);
+
+                       //bs[x][y].setBackgroundColor(INACTIVECOLOR);
+                        bs[x][y].setText("" + currentTurn);
+
+
+                        char wonChar = isSquareWon(thisSquare);
+                        if (wonChar != 'C') {
+                            Toast.makeText(this.getApplicationContext(), "" + wonChar +" won square " + thisSquare, Toast.LENGTH_LONG).show();
+                            activeSquares[thisSquare] = wonChar; //Square no longer in play
+                        }
+
+                        char c = checkIfGameIsWon();
+                        if(c == 'X' || c == 'O'){
+                            Toast.makeText(this.getApplicationContext(), c + " wins!", Toast.LENGTH_LONG).show();
+                        }
+                        for(int i = 0; i < 9; i++){
+                            if(i != activeSquare){
+                                setSquareColor(i,INACTIVECOLOR);
+                            }else{
+                                setSquareColor(i,ACTIVECOLOR);
+                            }
+                        }
+                    }
+
                 }
+            } catch (NumberFormatException e) {
+
+
+            }
+        }
+    }
+
+    private char checkIfGameIsWon() {
+        for(int i = 0; i < 2; i++) {
+            char c = 'a';
+         if( i == 0) c = 'X';
+         if( i == 1) c = 'O';
+
+            //row
+            if (activeSquares[0] == c && activeSquares[1] == c && activeSquares[2] == c)
+                return c;
+            if (activeSquares[3] == c && activeSquares[4] == c && activeSquares[5] == c)
+                return c;
+            if (activeSquares[6] == c && activeSquares[7] == c && activeSquares[8] == c)
+                return c;
+            //column
+            if (activeSquares[0] == c && activeSquares[3] == c && activeSquares[6] == c)
+                return c;
+            if (activeSquares[1] == c && activeSquares[4] == c && activeSquares[7] == c)
+                return c;
+            if (activeSquares[2] == c && activeSquares[5] == c && activeSquares[8] == c)
+                return c;
+            //diagonal
+            if (activeSquares[0] == c && activeSquares[4] == c && activeSquares[8] == c)
+                return c;
+            if (activeSquares[2] == c && activeSquares[4] == c && activeSquares[6] == c)
+                return c;
+
+
+        }
+        return 'c';
+    }
+
+    private int getCorrespondingWorldSquare(int x, int y){
+        if(x % 3 == 0 && y % 3 == 0) return 0;
+        if(x % 3 == 1 && y % 3 == 0) return 1;
+        if(x % 3 == 2 && y % 3 == 0) return 2;
+        if(x % 3 == 0 && y % 3 == 1) return 3;
+        if(x % 3 == 1 && y % 3 == 1) return 4;
+        if(x % 3 == 2 && y % 3 == 1) return 5;
+        if(x % 3 == 0 && y % 3 == 2) return 6;
+        if(x % 3 == 1 && y % 3 == 2) return 7;
+        if(x % 3 == 2 && y % 3 == 2) return 8;
+    else return -1;
+    }
+
+    private void setSquareColor(int square, int color){
+
+        int[] xy = getsquareStartingPosition(square);
+        for(int x = 0; x < 3; x++){
+            for(int y = 0; y < 3; y++){
+               bs[ xy[0] + x ][ xy[1] + y].setBackgroundColor(color);
             }
         }
 
     }
-
 
     private int getCurrentSquare(int x, int y){
         if(x < 3){
@@ -86,7 +181,136 @@ public class MainActivity extends Activity{
         }
     }
 
-    
+    private int[] getsquareStartingPosition(int square){
+
+        int xy[] = new int[2];
+        switch(square){
+            case 0:
+               xy[0] = 0;
+               xy[1] = 0;
+               break;
+            case 1:
+                xy[0] = 3;
+                xy[1] = 0;
+                break;
+            case 2:
+                xy[0] = 6;
+                xy[1] = 0;
+                break;
+            case 3:
+                xy[0] = 0;
+                xy[1] = 3;
+                break;
+            case 4:
+                xy[0] = 3;
+                xy[1] = 3;
+                break;
+            case 5:
+                xy[0] = 6;
+                xy[1] = 3;
+                break;
+            case 6:
+                xy[0] = 0;
+                xy[1] = 6;
+                break;
+            case 7:
+                xy[0] = 3;
+                xy[1] = 6;
+                break;
+            case 8:
+                xy[0] = 6;
+                xy[1] = 6;
+                break;
+
+        }
+
+        return xy;
+
+    }
+
+    private char isSquareWon(int square){
+        char c = 'C';
+        int[] xy = getsquareStartingPosition(square);
+        for(int i = 0; i < 3; i++) {
+            if (
+                bs[ xy[ 0 ] ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X' &&
+                bs[ xy[ 0 ] + 1 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X' &&
+                bs[ xy[ 0 ] + 2 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'X')
+
+            {
+                c = 'X';
+            }
+
+            if (
+                bs[ xy[ 0 ] + i] [ xy[ 1 ]].getText().toString().charAt(0) == 'X' &&
+                bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'X' &&
+                bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'X')
+
+            {
+                c = 'X';
+            }
+
+            if (
+                    bs[ xy[ 0 ] ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'O' &&
+                            bs[ xy[ 0 ] + 1 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'O' &&
+                            bs[ xy[ 0 ] + 2 ] [ xy[ 1 ] + i].getText().toString().charAt(0) == 'O')
+
+            {
+                c = 'O';
+            }
+
+            if (
+                    bs[ xy[ 0 ] + i] [ xy[ 1 ]].getText().toString().charAt(0) == 'O' &&
+                            bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'O' &&
+                            bs[ xy[ 0 ] + i ] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'O')
+
+            {
+                c = 'O';
+            }
+
+
+        }
+
+        if (
+                bs[ xy[ 0 ]] [ xy[ 1 ]].getText().toString().charAt(0) == 'O' &&
+                        bs[ xy[ 0 ]+1] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'O' &&
+                        bs[ xy[ 0 ]+2] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'O')
+
+        {
+            c = 'O';
+        }
+
+        if (
+                bs[ xy[ 0 ] +2 ] [ xy[ 1 ]].getText().toString().charAt(0) == 'O' &&
+                        bs[ xy[ 0 ]+1] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'O' &&
+                        bs[ xy[ 0 ]] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'O')
+
+        {
+            c = 'O';
+        }
+
+        if (
+                bs[ xy[ 0 ]] [ xy[ 1 ]].getText().toString().charAt(0) == 'X' &&
+                        bs[ xy[ 0 ]+1] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'X' &&
+                        bs[ xy[ 0 ]+2] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'X')
+
+        {
+            c = 'X';
+        }
+
+        if (
+                bs[ xy[ 0 ] +2 ] [ xy[ 1 ]].getText().toString().charAt(0) == 'X' &&
+                        bs[ xy[ 0 ]+1] [ xy[ 1 ] + 1].getText().toString().charAt(0) == 'X' &&
+                        bs[ xy[ 0 ]] [ xy[ 1 ] + 2].getText().toString().charAt(0) == 'X')
+
+        {
+            c = 'X';
+        }
+
+        return c;
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
