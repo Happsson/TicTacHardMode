@@ -10,6 +10,9 @@ public class Board {
 
     final int ACTIVECOLOR = Color.argb(255, 155, 228, 102);
     final int INACTIVECOLOR = Color.argb(255, 244, 142, 102);
+    final int XWONCOLOR = Color.argb(255, 85, 68, 30);
+    final int OWONCOLOR = Color.argb(255, 217,204,30);
+
 
     //9 main squares
     private MainSquare[][] mainSquares;
@@ -127,29 +130,13 @@ public class Board {
                 for (int y = 0; y < 3; y++) {
 
                     //Get current state for the mainsquare
-                    char state = getMainSquares()[x][y].getState();
+                    MainSquare square = getMainSquares()[x][y];
                     for (int subX = 0; subX < 3; subX++) {
                         for (int subY = 0; subY < 3; subY++) {
 
-                            //If activeMainSquare is -1, all playable squares is active.
-                            if (activeMainSquare[0] == -1) {
-                                if (state == 'G') {
-                                    mainSquares[x][y].getSubSquares()[subX][subY].setColor(ACTIVECOLOR);
-                                } else {
-                                    mainSquares[x][y].getSubSquares()[subX][subY].setColor(INACTIVECOLOR);
-                                }
+                            setSquareColor(square, subX, subY, x, y);
 
-                            } else {
-                                if (activeMainSquare[0] == x && activeMainSquare[1] == y) {
-                                    //This is the only active main square.
-                                    mainSquares[x][y].getSubSquares()[subX][subY].setColor(ACTIVECOLOR);
 
-                                } else {
-                                    //this is NOT the active square
-                                    mainSquares[x][y].getSubSquares()[subX][subY].setColor(INACTIVECOLOR);
-
-                                }
-                            }
                         }
                     }
 
@@ -159,6 +146,41 @@ public class Board {
         }else{
            //Game is over. The current player has won.
            //TODO - update the graphics here.
+        }
+    }
+
+    private void setSquareColor(MainSquare square, int subX, int subY, int x, int y) {
+        //If activeMainSquare is -1, all playable squares is active.
+        if (activeMainSquare[0] == -1) {
+            if (square.getState() == 'G') {
+                //All squares that are playable are green
+                square.getSubSquares()[subX][subY].setColor(ACTIVECOLOR);
+            } else {
+                setPlayerColor(square, subX,subY);
+            }
+
+        } else {
+            if (activeMainSquare[0] == x && activeMainSquare[1] == y) {
+                //This is the only active main square.
+                square.getSubSquares()[subX][subY].setColor(ACTIVECOLOR);
+
+            } else {
+                setPlayerColor(square, subX,subY);
+            }
+        }
+    }
+
+    private void setPlayerColor(MainSquare square, int subX, int subY) {
+        if(square.getState() == 'X') {
+            //X has won this square
+            square.getSubSquares()[subX][subY].setColor(XWONCOLOR);
+        } else if(square.getState() == 'O') {
+            //O has won this square
+            square.getSubSquares()[subX][subY].setColor(OWONCOLOR);
+            //this is NOT the active square
+        }else{
+            //No one has won this square, it's just inactive.
+            square.getSubSquares()[subX][subY].setColor(INACTIVECOLOR);
         }
     }
 }
