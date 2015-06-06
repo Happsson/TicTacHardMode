@@ -731,7 +731,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
-            android:id="@+id/textView"
+            android:id="@+id/playerInfo"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/lines"
             />
