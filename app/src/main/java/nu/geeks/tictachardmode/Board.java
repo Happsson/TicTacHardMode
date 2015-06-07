@@ -139,7 +139,7 @@ public class Board {
         setActiveMainSquare( x % 3 , y % 3);
 
         //Check if the game is over
-        char winner = SquareMath.checkIfGameIsWon(mainSquares);
+        char winner = SQMath.checkIfGameIsWon(mainSquares);
 
         //Change player
         changeActivePlayer();

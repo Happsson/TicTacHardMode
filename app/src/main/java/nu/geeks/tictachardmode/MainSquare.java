@@ -74,7 +74,7 @@ public class MainSquare {
     }
 
     public char updateState() {
-        state = SquareMath.updateState(subSquares);
+        state = SQMath.updateState(subSquares);
         return state;
     }
 }

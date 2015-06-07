@@ -82,7 +82,7 @@ public class AI {
                             //Update the board. Returns the winner if someone won the game. Else it returns 'N'
                             char winner = board.update(x, y);
                             if(winner == 'N') {
-                                if (SquareMath.isGameWinnableForAI(board.getMainSquares())) {
+                                if (SQMath.isGameWinnableForAI(board.getMainSquares())) {
 
                                    // Log.d("AIMOVE", "x = " + x + ", y = " + y + " counter = " + counter);
 
