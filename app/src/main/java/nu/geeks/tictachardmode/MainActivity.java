@@ -17,6 +17,8 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     final int ACTIVECOLOR = Color.argb(255, 155, 228, 102);
+    private final String INTENTTAG = "GAMETYPE";
+
 
     Button[][] buttons = new Button[9][9];
 
@@ -24,10 +26,28 @@ public class MainActivity extends Activity {
 
     Board board;
 
+    boolean ai = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        Bundle extras = getIntent().getExtras();
+        String game = "";
+        if(extras != null){
+           game = extras.getString(INTENTTAG);
+        }
+        if(game.equals("Player vs Player")){
+            //TODO - game type is player vs player.
+            Toast.makeText(getApplicationContext(), "Player vs Player", Toast.LENGTH_LONG).show();
+        }else if(game.equals("Player vs AI")){
+            //TODO - game type is Player vs AI.
+            Toast.makeText(getApplicationContext(), "Player vs AI", Toast.LENGTH_LONG).show();
+            ai = true;
+        }
+
 
         playerInfo = (TextView) findViewById(R.id.playerInfo);
         playerInfo.setText("Player X's turn");
@@ -60,6 +80,12 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     doMove(v);
+                    //If game is against ai, make the AI move as soon as the player has made a move.
+                    if(board.getActivePlayer() == 'O' && ai){
+                        int[] aiMove = AI.makeMove(board);
+                        makeMove(aiMove[0], aiMove[1]); //Will this be correct?
+
+                    }
                 }
             });
 
@@ -103,10 +129,6 @@ public class MainActivity extends Activity {
                         //Update the board. Returns the winner if someone won the game. Else it returns 'N'
                         char winner = board.update(x, y);
 
-                        //If the new active mainsquare isn't in the correct state, set active square to -1.
-                        if(board.getMainSquares()[board.getActiveMainSquare()[0] ] [ board.getActiveMainSquare()[1]].getState() != 'G'){
-                            board.setActiveMainSquare(-1, -1);
-                        }
 
                         //Update the graphics for the board.
                         board.updateGraphics();

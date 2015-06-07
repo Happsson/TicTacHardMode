@@ -10,7 +10,7 @@ public class Board {
 
     final int ACTIVECOLOR = Color.argb(255, 155, 228, 102);
     final int INACTIVECOLOR = Color.argb(255, 244, 142, 102);
-    final int XWONCOLOR = Color.argb(255, 85, 68, 30);
+    final int XWONCOLOR = Color.argb(255, 85, 90, 120);
     final int OWONCOLOR = Color.argb(255, 217,204,30);
 
 
@@ -19,11 +19,13 @@ public class Board {
 
     private char activePlayer;
 
+    private char player;
+
     /**
      * Game states are:
      * X = X won
      * O = O won
-     * D = Games is draw / no one can win
+     * D = Games is draw / no one can win (not used at the moment)
      * G = Games is go.
      */
     private char gameState;
@@ -32,10 +34,17 @@ public class Board {
     private int[] activeMainSquare;
 
 
-
+    /**
+     * Counstructor. Only argument is who the starting player will be.
+     *
+     * @param activePlayer
+     */
     public Board(char activePlayer) {
 
         this.activePlayer = activePlayer;
+
+        //Player is set as player to keep track of who is player and who is AI.
+        player = activePlayer;
 
         mainSquares = new MainSquare[3][3];
 
@@ -52,39 +61,48 @@ public class Board {
         gameState = 'G';
     }
 
+    public char getGameState(){
+        return gameState;
+    }
+    public void setGameState(char state){
+        gameState = state;
+    }
+
 
     public MainSquare[][] getMainSquares() {
         return mainSquares;
-    }
-
-    //Getters and setters
-    public void setMainSquares(MainSquare[][] mainSquares) {
-        this.mainSquares = mainSquares;
     }
 
     public char getActivePlayer() {
         return activePlayer;
     }
 
+    /**
+     * Change player.
+     */
     public void changeActivePlayer() {
 
         if(activePlayer == 'X') activePlayer = 'O';
         else if(activePlayer == 'O') activePlayer = 'X';
     }
 
+    /**
+     * Sets a single sub squares text to current players symbol.
+     * @param x mainsquare X
+     * @param y mainsquare Y
+     * @param subX subsquare X
+     * @param subY subsquare Y
+     */
     public void setSubSquareValue(int x, int y, int subX, int subY){
         getMainSquares()[x][y].getSubSquares()[subX][subY].setValue(activePlayer);
         getMainSquares()[x][y].getSubSquares()[subX][subY].setButtonText(activePlayer);
     }
 
-    public char getGameState() {
-        return gameState;
-    }
-
-    public void setGameState(char gameState) {
-        this.gameState = gameState;
-    }
-
+    /**
+     * Returns the current active mainsquare. Is either one of the 3x3 squares, or -1 if
+     * all playable squares are active.
+     * @return
+     */
     public int[] getActiveMainSquare() {
         return activeMainSquare;
     }
@@ -95,7 +113,17 @@ public class Board {
         this.activeMainSquare[1] = y;
     }
 
-
+    /**
+     * Update the board. Acts on a players choice.
+     * Sets the new value for the subsquare according to what player pushed,
+     * updates that square (see if player won the square or if it should change state),
+     * checks if the player won the game (and returns that players symbol if it did),
+     * and change the active player.
+     *
+     * @param x world coordinate (0-9)
+     * @param y world coordinate (0-9)
+     * @return 'X', 'O', or 'N' (if no player won with this move)
+     */
     public char update(int x, int y) {
 
 
@@ -116,11 +144,23 @@ public class Board {
         //Change player
         changeActivePlayer();
 
+        if(winner != 'N'){
+            gameState = winner;
+        }
+
+        //If the new active mainsquare isn't in the correct state, set active square to -1.
+        if(getMainSquares()[getActiveMainSquare()[0] ] [getActiveMainSquare()[1]].getState() != 'G'){
+            setActiveMainSquare(-1, -1);
+        }
 
         return winner;
 
     }
 
+    /**
+     * Updates all the colors on the game
+     *
+     */
     public void updateGraphics() {
 
         if (gameState == 'G' || gameState == 'D') {
@@ -182,5 +222,20 @@ public class Board {
             //No one has won this square, it's just inactive.
             square.getSubSquares()[subX][subY].setColor(INACTIVECOLOR);
         }
+    }
+
+    //Reverts the game one step.
+    public void revert(int x, int y, char gameState) {
+
+        mainSquares[x / 3][y / 3].getSubSquares()[x % 3][y % 3].setValue(' ');
+
+        //Update the played square
+        mainSquares[ x / 3 ][ y / 3].updateState();
+
+        // Set active square.
+        setActiveMainSquare( x % 3 , y % 3);
+
+        this.gameState = gameState;
+
     }
 }

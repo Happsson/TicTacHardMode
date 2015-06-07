@@ -1,9 +1,13 @@
 package nu.geeks.tictachardmode;
 
+import android.util.Log;
+
 /**
  * Created by hannespa on 15-06-01.
  */
 public class MainSquare {
+
+    static final String TAG = "MainSquareTAG";
 
     SubSquare[][] subSquares;
     char state;
@@ -43,6 +47,26 @@ public class MainSquare {
 
     public char getState() {
         return state;
+    }
+
+    /**
+     * Returns whether or not this square is playable for @param player.
+     * If square is won by the other player, or if it is full, this returns false.
+     * Otherwise it returns true.
+     *
+     * @param player the player to be checked
+     * @return false if that player can't play this square.
+     */
+    public boolean getPlayableFor(char player){
+        char c;
+        if(player == 'O') c = 'X';
+        else if(player == 'X') c = 'O';
+        else{
+            Log.d(TAG, "Wrong type of user");
+            c = 'W'; //WRONG TYPE OF USER;
+        }
+        if(state == c || state == 'F') return false;
+        else return true;
     }
 
     public void setState(char state) {
