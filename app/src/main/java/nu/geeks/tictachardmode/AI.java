@@ -5,111 +5,54 @@ import android.widget.Button;
 import android.widget.Toast;
 
 /**
+ *
+ *
  * Created by hannespa on 15-05-30.
+ */
+
+/* new take
+
+A take on a non-brute force attempt. Think more like a human.
+
+Give all squares a value array, based on how attractive it is for the AI and the Player.
+Values are in an array, [AI points, player points, AI moves made to win square, player moves made to win square].
+
+    * A square gets 4 in [0] || [1] if winning this is the ONLY way to win the game.
+    * A square gets 3 if [0] || [1] winning this would win the game.
+    * A square gets 2 if [0] || [1] winning this would get two squares in a row/column/diagonal.
+    * A square gets 1 if [0] || [1] winning this square in some way could be part of a win.
+    * A square gets 0 if [0] || [1] winning this could in no way help the player.
+
+    * A square gets 0 in [2] || [3] if three moves are needed in a square to win
+    * A square gets 1 in [2] || [3] if two moves are needed in a square to win
+    * A square gets 2 in [2] || [3] if one moves are needed in a square to win
+    * A square gets 3 in [2] || [3] if square is won.
+
+Calculate the values for all main squares on the board.
+
+First, check if all squares has value 1 for [0] and [1], and a value of 1 or less for [2] and [3].
+This will be the case the first few rounds of the game. If so, just make a random move.
+
+    1.  If AI-points for this square gets a 4:
+        1.1 Check if AI can win this square with this move. If so, make this move, disregard
+            what happens after this move (game is over)
+        1.2 Check if AI can prevent the player from winning this square.
+
+    2.  If AI-points for this square gets a positive value (the AI can win the game by winning this square).
+
+        2.2 Check if the AI can win the square with this move.
+        2.3 Check if the AI can prevent the player from winning this square.
+
+    3.  If AI points is 0 and player points is positive (the Player can win the game by winning this
+        square).
+
+        3.1 Check if AI can prevent the player from winning this square.
+
  */
 public class AI {
 
     private final String TAG = "AIMOVE";
 
-    /**
-     * This will calculate the best possible move for the AI at the given board.
-     * It will check all 9x9 moves, since the activeSquare might be -1. (All playable moves acceptable).
-     * For this reason, most of what happens in here is based on world coordinates.
-     *
-     * If AI can't make any winning move, this returns {-1,-1}. i.e, AI gives up.
-     *
-     * @param board
-     * @return the AI move in world coordinates.
-     */
-    public static int[] makeMove(Board board) {
-        int[] returnValue = {-1,-1};
 
-        //Will hold the amount of wins every move would generate.
-        int[][] bestMove = new int[9][9];
-        for(int i = 0; i < 9; i++){
-            for(int j = 0; j < 9 ; j++){
-                bestMove[i][j] = 0;
-            }
-        }
-        loop:
-        for (int x = 0; x < 9; x++) {
-                for (int y = 0; y < 9; y++) {
-                   bestMove[x][y] = checkMove(board, 0);
-                   if(bestMove[x][y] < 0){
-                       break loop;
-                   }
-                }
-            }
-
-        int highestValue = 0;
-        //Find the best value
-        for(int i = 0; i < 9; i++){
-            for( int j = 0; j < 9; j++){
-                if(bestMove[i][j] > highestValue){
-                    highestValue = bestMove[i][j];
-
-                    returnValue[0] = i;
-                    returnValue[1] = j;
-
-                }
-            }
-        }
-        return returnValue;
-
-    }
-
-
-    public static int checkMove(Board board, int counter) {
-
-       // Log.d("AIMOVE","counter = " + counter);
-        mainloop:
-        for (int x = 0; x < 9; x++) {
-            for (int y = 0; y < 9; y++) {
-
-                //Check if move is in active square.
-                if ((board.getActiveMainSquare()[0] == x / 3 && board.getActiveMainSquare()[1] == y / 3) || board.getActiveMainSquare()[0] == -1) {
-
-                    //check that the state of the selected main square is valid
-                    if (board.getMainSquares()[x / 3][y / 3].getState() == 'G') {
-
-                        //Check if sub-square is empty
-                        if (board.getMainSquares()[x / 3][y / 3].getSubSquares()[x % 3][y % 3].getValue() == ' ') {
-
-                            //Move was valid.
-                            //Before we do anything else, lets save the current gamestate so we can revert back to it.
-                            char gameState = board.getGameState();
-
-                            //Update the board. Returns the winner if someone won the game. Else it returns 'N'
-                            char winner = board.update(x, y);
-                            if(winner == 'N') {
-                                if (SQMath.isGameWinnableForAI(board.getMainSquares())) {
-
-                                   // Log.d("AIMOVE", "x = " + x + ", y = " + y + " counter = " + counter);
-
-                                    //Recurse.
-                                    return checkMove(board, counter);
-                                }
-                            }else if(winner == 'O'){
-                                //AI won
-                                counter++;
-                                board.revert(x,y, gameState);
-                                return counter;
-
-                            }
-
-                            //Revert
-                            board.revert(x,y, gameState);
-
-
-                        }
-
-                    }
-
-                }
-
-            }
-        }
-        return 0;
-    }
 }
 
