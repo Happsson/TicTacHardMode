@@ -224,18 +224,12 @@ public class Board {
         }
     }
 
-    //Reverts the game one step.
-    public void revert(int x, int y, char gameState) {
+    public void updateAnalysisArrays(){
+     for(int x = 0; x < 3; x++){
+         for(int y = 0; y < 3; y++){
 
-        mainSquares[x / 3][y / 3].getSubSquares()[x % 3][y % 3].setValue(' ');
-
-        //Update the played square
-        mainSquares[ x / 3 ][ y / 3].updateState();
-
-        // Set active square.
-        setActiveMainSquare( x % 3 , y % 3);
-
-        this.gameState = gameState;
-
+            mainSquares[x][y].updateAnalysisArray()
+         }
+     }
     }
 }

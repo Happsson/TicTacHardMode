@@ -23,6 +23,7 @@ Values are in an array, [AI points, player points, AI moves made to win square, 
     * A square gets 1 if [0] || [1] winning this square in some way could be part of a win.
     * A square gets 0 if [0] || [1] winning this could in no way help the player.
 
+    * A square gets -1 in [2]|| [3] if square is full or not winnable
     * A square gets 0 in [2] || [3] if three moves are needed in a square to win
     * A square gets 1 in [2] || [3] if two moves are needed in a square to win
     * A square gets 2 in [2] || [3] if one moves are needed in a square to win
@@ -53,6 +54,11 @@ public class AI {
 
     private final String TAG = "AIMOVE";
 
+
+    public static int[] makeMove(Board board){
+
+        return null;
+    }
 
 }
 
