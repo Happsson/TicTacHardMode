@@ -116,8 +116,8 @@ public class MainSquare {
 
         analysisArray[0] = index0;
         analysisArray[1] = index1;
-        analysisArray[2] = x;
-        analysisArray[3] = o;
+        analysisArray[2] = o;
+        analysisArray[3] = x;
 
         return analysisArray;
 

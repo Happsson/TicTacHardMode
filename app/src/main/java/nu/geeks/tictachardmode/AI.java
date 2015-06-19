@@ -64,6 +64,18 @@ public class AI {
         int y = board.getActiveMainSquare()[1];
         //TODO - Handle the case when the active square is -1.
         board.updateAnalysisArrays();
+        String st = ":\n\n";
+        for(int a = 0; a < 3; a ++){
+            for(int b = 0; b < 3; b++){
+                st += " {" + a + "," + b +"}: ";
+                for(int i = 0; i < 4; i++){
+                    st += board.getMainSquares()[a][b].getAnalysisArray()[i] + ",";
+                }
+                st += " \t";
+            }
+            st += " \n";
+        }
+        Log.d("AI-ERROR", st);
 
         //Based on the analysisArray, make a play for the AI.
         /*
