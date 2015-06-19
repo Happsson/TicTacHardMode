@@ -64,7 +64,6 @@ public class AI {
         int y = board.getActiveMainSquare()[1];
         //TODO - Handle the case when the active square is -1.
         board.updateAnalysisArrays();
-        int[] aa = board.getMainSquares()[x][y].getAnalysisArray();
 
         //Based on the analysisArray, make a play for the AI.
         /*
@@ -91,58 +90,184 @@ public class AI {
             Same as above, but for the player.
 
          */
+        //If there is an active square.
+        if (board.getActiveMainSquare()[0] != -1) {
+            return decisionTree(board, x, y, true);
+        } else
+
+        {
+            return decisionTreeNoActiveSquare(board, x, y);
+
+        }
+
+    }
+
+
+
+    private static int[] decisionTreeNoActiveSquare(Board board, int x, int y) {
+        //No active square.
+        //Iterate through all the squares and find one that works for this step and the next.
+        for(int xx = 0; xx < 3; xx++){
+            for(int yy = 0; yy < 3; yy++){
+                char state = board.getMainSquares()[xx][yy].getState();
+                if(state == 'G' || state == 'D'){
+                    //Square is playable.
+                    int[] move = decisionTree(board, xx, yy, false);
+                    if(move != null){
+                        return move;
+                    }
+
+                }
+            }
+        }
+        //There is no active square, but every single move the AI can make will be a losing move.
+        //Just pick the first one, and let the player win.
+        for(int xx = 0; xx < 9; xx++){
+            for(int yy = 0; yy < 9; yy++){
+                if(board.getMainSquares()[xx / 3][yy / 3].getSubSquares()[xx % 3][yy % 3].getValue() == ' '){
+                    return new int[] {xx,yy};
+                }
+            }
+        }
+        Log.d("AI-ERROR", "Nothing move was done. Don't know why. :D");
+        return null;
+
+    }
+
+    private static int[] decisionTree(Board board, int x, int y, boolean acceptBadMove) {
+        int[] aa = board.getMainSquares()[x][y].getAnalysisArray();
 
         if (aa[0] == 3) {
             //Winning this would win the game.
-            return decisionTreeForAI3(aa, board, x, y);
+            return decisionTreeForAI3(aa, board, x, y, acceptBadMove);
         }
-        if (aa[0] == 2) {
+        else if (aa[0] == 2) {
+            //This situation is handled almost exactly as aa[0] == 3, but with one key difference,
+            //since winning this square would not mean winning this game, no moves are safe.
+            return decisionTreeForAI2(aa, board, x, y, acceptBadMove);
+        }
+        else if (aa[0] == 1) {
+            //This situation is handled exactly the same as aa[0] == 2.
+            return decisionTreeForAI2(aa, board, x, y, acceptBadMove);
 
         }
-        if (aa[0] == 1) {
-
+        else if (aa[0] == 0) {
+            //For now this is also handled the same way as aa[0] == 1 and aa[0] == 2.
+            return decisionTreeForAI2(aa, board, x, y, acceptBadMove);
         }
-        if (aa[0] == 0) {
-
+        else{
+            //Now something has happened. If we get here, I have done something wrong.
+            Log.d("AI-ERROR", "analysisArray invalid for all aa[0]");
+            return new int[] {-1,-1};
         }
 
-        return null; //no, i don't wanna return null.
     }
 
-    private static int[] decisionTreeForAI3(int[] aa, Board board, int x, int y) {
-        if (aa[2] == 2) {
-            //This square is winnable with one move
-            int[] move = board.getMainSquares()[x][y].getPlayerOMoves().get(0);
-            int[] worldCoords = SQMath.toWorldCoordinate(x, y, move[0], move[1]);
-            return worldCoords;
-        }
-        else if (aa[2] == 1 || aa[2] == 0) {
+    private static int[] decisionTreeForAI2(int[] aa, Board board, int x, int y, boolean acceptBadMove) {
+        if (aa[2] == 2 || aa[2] == 1 || aa[2] == 0) {
             //For now, lets handle these situations the same way.
-            return decisionTreeForAI31(aa, board, x, y, board.getMainSquares()[x][y].getPlayerOMoves());
+            int[] ret = decisionTreeForAI31(aa, board, x, y, board.getMainSquares()[x][y].getPlayerOMoves());
+            if (ret == null) {
+                //If ret == null, all the available moves are kind of bad. Read the info in this method.
+                if(acceptBadMove) return pickABadMove(aa, board, x, y, board.getMainSquares()[x][y].getPlayerOMoves());
+                return null;
+            } else {
+                return ret;
+            }
+
         }
-        else if (aa[2] == -1){
+        else if (aa[2] == -1) {
             //The AI cannot win this square.
-            //There are no moves in the getPlayerOMoves-array, since no move would be a winning move
+            //There are no moves in the getPlayerOMoves-array, since no move would be a winning move.
             //Instead, lets just check all the available moves by checking if it is at all possible
-            //to play the move, and see let the decisionTreeForAI32 make a choice.
+            //to play the move, and let the decisionTreeForAI31 make a choice.
             ArrayList<int[]> playerOMoves = new ArrayList<int[]>();
             int[] active = board.getActiveMainSquare();
-            for(int xx = 0; xx < 3; xx++){
-                for(int yy= 0; yy < 3; yy++){
-                    if(board.getMainSquares()[active[0]][active[1]].getSubSquares()[xx][yy].getValue() == ' '){
-                        playerOMoves.add(new int[] {xx,yy});
+            for (int xx = 0; xx < 3; xx++) {
+                for (int yy = 0; yy < 3; yy++) {
+                    if (board.getMainSquares()[active[0]][active[1]].getSubSquares()[xx][yy].getValue() == ' ') {
+                        playerOMoves.add(new int[]{xx, yy});
                     }
                 }
             }
-            return decisionTreeForAI31(aa, board, x, y, playerOMoves);
+
+            int[] ret = decisionTreeForAI31(aa, board, x, y, playerOMoves);
+            if (ret == null) {
+                //If ret == null, all the available moves are kind of bad. Read the info in this method.
+                if(acceptBadMove) return pickABadMove(aa, board, x, y, board.getMainSquares()[x][y].getPlayerOMoves());
+                return null;
+            } else {
+                return ret;
+            }
         }
         else{
             //Now something has happened. If we get here, I have done something wrong.
             Log.d("AI-ERROR", "analysisArray invalid for aa[0] = 3");
             return new int[] {-1,-1};
         }
+
     }
 
+    private static int[] decisionTreeForAI3(int[] aa, Board board, int x, int y, boolean acceptBadMove) {
+        if (aa[2] == 2) {
+            //This square is winnable with one move. This is a safe move, lets do it.
+            int[] move = board.getMainSquares()[x][y].getPlayerOMoves().get(0);
+            int[] worldCoords = SQMath.toWorldCoordinate(x, y, move[0], move[1]);
+            return worldCoords;
+        } else if (aa[2] == 1 || aa[2] == 0) {
+            //For now, lets handle these situations the same way.
+            int[] ret = decisionTreeForAI31(aa, board, x, y, board.getMainSquares()[x][y].getPlayerOMoves());
+            if (ret == null) {
+                if(acceptBadMove) return pickABadMove(aa, board, x, y, board.getMainSquares()[x][y].getPlayerOMoves());
+                return null;
+            }else{
+                return ret;
+            }
+        } else if (aa[2] == -1) {
+            //The AI cannot win this square.
+            //There are no moves in the getPlayerOMoves-array, since no move would be a winning move.
+            //Instead, lets just check all the available moves by checking if it is at all possible
+            //to play the move, and let the decisionTreeForAI31 make a choice.
+            ArrayList<int[]> playerOMoves = new ArrayList<int[]>();
+            int[] active = board.getActiveMainSquare();
+            for (int xx = 0; xx < 3; xx++) {
+                for (int yy = 0; yy < 3; yy++) {
+                    if (board.getMainSquares()[active[0]][active[1]].getSubSquares()[xx][yy].getValue() == ' ') {
+                        playerOMoves.add(new int[]{xx, yy});
+                    }
+                }
+            }
+            int[] ret = decisionTreeForAI31(aa, board, x, y, playerOMoves);
+            if (ret == null) {
+                if(acceptBadMove) return pickABadMove(aa, board, x, y, playerOMoves);
+                return null;
+            }else{
+                return ret;
+            }
+        } else {
+                //Now something has happened. If we get here, I have done something wrong.
+                Log.d("AI-ERROR", "analysisArray invalid for aa[0] = 3");
+                return new int[]{-1, -1};
+            }
+        }
+
+
+    private static int[] pickABadMove(int[] aa, Board board, int x, int y, ArrayList<int[]> playerOMoves) {
+            //Either the move will make the player win, or will give the player a free for all.
+            //Prefer free for all, if possible. Iterate through them all one more time and select the
+            //first free for all.
+            for(int[] possibleMove : playerOMoves){
+                MainSquare mainSquare = board.getMainSquares()[possibleMove[0]][possibleMove[1]];
+                if(mainSquare.getState() == 'X' || mainSquare.getState() == 'O'){
+                    int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
+                    return worldCoords;
+                }
+            }
+            //If we get to this point, the AI has lost the game. Just let the player win.
+            int[] move = board.getMainSquares()[x][y].getPlayerOMoves().get(0);
+            int[] worldCoords = SQMath.toWorldCoordinate(x, y, move[0], move[1]);
+            return worldCoords;
+    }
 
 
 
@@ -184,21 +309,10 @@ public class AI {
                 }
             }
         }
-        //This is a bad situation. All the moves are actually really bad.
-        //Either the move will make the player win, or will give the player a free for all.
-        //Prefer free for all, if possible. Iterate through them all one more time and select the
-        //first free for all.
-        for(int[] possibleMove : playerOMoves){
-            MainSquare mainSquare = board.getMainSquares()[possibleMove[0]][possibleMove[1]];
-            if(mainSquare.getState() == 'X' || mainSquare.getState() == 'O'){
-                int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
-                return worldCoords;
-            }
-        }
-        //If we get to this point, the AI has lost the game. Just let the player win.
-        int[] move = board.getMainSquares()[x][y].getPlayerOMoves().get(0);
-        int[] worldCoords = SQMath.toWorldCoordinate(x, y, move[0], move[1]);
-        return worldCoords;
+
+        //This is a bad situation. All the moves are actually really bad. We return null from here,
+        //and handle this in the method that called here.
+        return null;
 
 
     }

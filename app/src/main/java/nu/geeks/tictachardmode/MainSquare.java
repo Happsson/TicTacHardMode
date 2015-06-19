@@ -3,6 +3,7 @@ package nu.geeks.tictachardmode;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by hannespa on 15-06-01.
@@ -90,6 +91,7 @@ public class MainSquare {
     private void setAdvancedStatePlayerStatus(){
         playerXMoves = SQMath.findGoodMoves('X', subSquares);
         playerOMoves = SQMath.findGoodMoves('O', subSquares);
+
     }
 
 

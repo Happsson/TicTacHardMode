@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by hannespa on 15-06-07.
@@ -195,15 +196,20 @@ public class SQMath{
 
 
         //If any of the list is populated, return it.
+        //Also shuffle the arrays. Otherwise the AI will play square 0,0 a lot in the beginning.
         if(twos.size() > 1){
+
+            Collections.shuffle(twos);
             twos.add(new int[] {2,2});
             return twos;
         }
         if(ones.size() > 1){
+            Collections.shuffle(ones);
             ones.add(new int[] {1,1});
             return ones;
         }
         if(zeros.size() > 1){
+            Collections.shuffle(zeros);
             zeros.add(new int[] {0,0});
             return zeros;
         }

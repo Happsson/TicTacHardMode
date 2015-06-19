@@ -83,8 +83,7 @@ public class MainActivity extends Activity {
                     //If game is against ai, make the AI move as soon as the player has made a move.
                     if(board.getActivePlayer() == 'O' && ai){
                         int[] aiMove = AI.makeMove(board);
-                        makeMove(aiMove[0], aiMove[1]); //Will this be correct?
-
+                        makeMove(aiMove[0], aiMove[1]);
                     }
                 }
             });
