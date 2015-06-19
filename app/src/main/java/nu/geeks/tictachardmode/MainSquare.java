@@ -121,4 +121,15 @@ public class MainSquare {
 
     }
 
+    public int[] getAnalysisArray(){
+        return analysisArray;
+    }
+
+    public ArrayList<int[]> getPlayerOMoves(){
+        return playerOMoves;
+    }
+    public ArrayList<int[]> getPlayerXMoves(){
+        return playerXMoves;
+    }
+
 }

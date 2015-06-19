@@ -227,8 +227,9 @@ public class Board {
     public void updateAnalysisArrays(){
      for(int x = 0; x < 3; x++){
          for(int y = 0; y < 3; y++){
-
-            mainSquares[x][y].updateAnalysisArray()
+            int index0 = SQMath.cbm('O', mainSquares, x,y);
+            int index1 = SQMath.cbm('X', mainSquares, x,y);
+            mainSquares[x][y].updateAnalysisArray(index0, index1);
          }
      }
     }
