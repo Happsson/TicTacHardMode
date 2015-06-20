@@ -62,15 +62,18 @@ public class AI {
 
         int x = board.getActiveMainSquare()[0];
         int y = board.getActiveMainSquare()[1];
-        //TODO - Handle the case when the active square is -1.
+
         board.updateAnalysisArrays();
+
         String st = ":\n\n";
         for(int a = 0; a < 3; a ++){
             for(int b = 0; b < 3; b++){
                 st += " {" + a + "," + b +"}: ";
-                for(int i = 0; i < 4; i++){
-                    st += board.getMainSquares()[a][b].getAnalysisArray()[i] + ",";
-                }
+
+                st += "AI Game " +board.getMainSquares()[a][b].getAnalysisArray()[0] + ",";
+                st += "P1 Game " +board.getMainSquares()[a][b].getAnalysisArray()[1] + ",";
+                st += "AI Sqre " +board.getMainSquares()[a][b].getAnalysisArray()[2] + ",";
+                st += "P1 Sqre " +board.getMainSquares()[a][b].getAnalysisArray()[3] + ",";
                 st += " \t";
             }
             st += " \n";
@@ -288,36 +291,43 @@ public class AI {
         //Check for all the available moves, if this move would not cause the player
         //to win, or give the player a free-for-all, go for it.
         for (int[] possibleMove : playerOMoves) {
+            if (possibleMove[1] != -1) {
+                //For each move, we are looking on step ahead, by getting the current state of the
+                //Square we would send the player to.
+                MainSquare mainSquare = board.getMainSquares()[possibleMove[0]][possibleMove[1]];
+                if (mainSquare.getState() == 'D') {
+                    //The square is not winnable for anyone, so lets play it.
+                    int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
+                    return worldCoords;
+                }
+                if (mainSquare.getState() == 'G') {   //If the square is playable
+                    int[] analysis = mainSquare.getAnalysisArray();
+                    if (analysis[1] == 3) { //The player would win the game if it wins this square
 
-            MainSquare mainSquare = board.getMainSquares()[possibleMove[0]][possibleMove[1]];
-            if(mainSquare.getState() == 'D'){
-                //The square is not winnable for anyone, so lets play it.
-                int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
-                return worldCoords;
-            }
-            if (mainSquare.getState() == 'G') {   //If the square is playable
-                int[] analysis = mainSquare.getAnalysisArray();
-                if (analysis[1] == 3) { //The player would win the game if it wins this square
-                    if (analysis[3] == -1) {
-                        //The player cannot win this square. Cool. Let the AI play this move.
-                        int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
-                        return worldCoords;
+                        if (analysis[3] == -1) {
+                            //The player cannot win this square. Cool. Let the AI play this move.
+                            int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
+                            return worldCoords;
 
+                        }
+                        if (analysis[3] == 0) {
+                            //The player can win this square, but it would take three more moves.
+                            //That's fine for now, let the AI play this move.
+                            int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
+                            return worldCoords;
+                        }
+                        if (analysis[3] == 1) {
+                            //Now we are getting kind of close. The player can win this square, but
+                            //it would take one more move. Still fine though, let the AI play this move.
+                            int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
+                            return worldCoords;
+                        } else {
+                            //NO! NO! This is NOT OK! If the AI makes this move, the player wins.
+                        }
+                    } else if (analysis[1] == 2) {
+                        //The player could win the square
                     }
-                    if (analysis[3] == 0) {
-                        //The player can win this square, but it would take three more moves.
-                        //That's fine for now, let the AI play this move.
-                        int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
-                        return worldCoords;
-                    }
-                    if (analysis[3] == 1) {
-                        //Now we are getting kind of close. The player can win this square, but
-                        //it would take one more move. Still fine though, let the AI play this move.
-                        int[] worldCoords = SQMath.toWorldCoordinate(x, y, possibleMove[0], possibleMove[1]);
-                        return worldCoords;
-                    } else {
-                        //NO! NO! This is NOT OK! If the AI makes this move, the player wins.
-                    }
+
                 }
             }
         }

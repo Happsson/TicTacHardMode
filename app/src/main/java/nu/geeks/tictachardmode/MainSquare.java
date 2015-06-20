@@ -10,6 +10,8 @@ import java.util.Collections;
  */
 public class MainSquare {
 
+    private int[] position;
+
     static final String TAG = "MainSquareTAG";
 
     private int[] analysisArray = new int[4];
@@ -32,8 +34,8 @@ public class MainSquare {
      */
 
 
-    public MainSquare() {
-
+    public MainSquare(int xx, int yy) {
+        position = new int[] {xx,yy};
         subSquares = new SubSquare[3][3];
         playerXMoves = new ArrayList<int[]>();
         playerOMoves = new ArrayList<int[]>();
@@ -95,32 +97,42 @@ public class MainSquare {
     }
 
 
-    public int[] updateAnalysisArray(int index0, int index1){
-        if(state == 'X') return new int[] {3,0};
-        if(state == 'O') return new int[] {0,3};
-
-        int x;
-        int o;
-
-        setAdvancedStatePlayerStatus();
-        if(playerXMoves.size() > 0){
-            x = playerXMoves.get(playerXMoves.size()-1)[0];
-        }else{
-            x = -1;
+    public void updateAnalysisArray(int index0, int index1){
+        if(state == 'X'){
+            analysisArray[0] = index0;
+            analysisArray[1] = index1;
+            analysisArray[2] = 0;
+            analysisArray[3] = 3;
         }
-        if(playerOMoves.size() > 0){
-            o = playerOMoves.get(playerOMoves.size()-1)[0];
-        }else{
-            o = -1;
+        else if(state == 'O'){
+            analysisArray[0] = index0;
+            analysisArray[1] = index1;
+            analysisArray[2] = 3;
+            analysisArray[3] = 0;
+        }else {
+
+            int x;
+            int o;
+
+            setAdvancedStatePlayerStatus();
+            if (playerXMoves.size() > 0) {
+                x = playerXMoves.get(playerXMoves.size() - 1)[0];
+            } else {
+                x = -1;
+            }
+            if (playerOMoves.size() > 0) {
+                o = playerOMoves.get(playerOMoves.size() - 1)[0];
+            } else {
+                o = -1;
+            }
+
+            analysisArray[0] = index0;
+            analysisArray[1] = index1;
+            analysisArray[2] = o;
+            analysisArray[3] = x;
+
+
         }
-
-        analysisArray[0] = index0;
-        analysisArray[1] = index1;
-        analysisArray[2] = o;
-        analysisArray[3] = x;
-
-        return analysisArray;
-
     }
 
     public int[] getAnalysisArray(){

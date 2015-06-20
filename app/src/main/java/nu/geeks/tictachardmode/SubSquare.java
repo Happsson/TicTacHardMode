@@ -35,9 +35,6 @@ public class SubSquare {
         this.value = value;
     }
 
-    public void setThisButton(Button thisButton) {
-        this.thisButton = thisButton;
-    }
 
     public void setButtonText(char activePlayer) {
         thisButton.setText("" + activePlayer);

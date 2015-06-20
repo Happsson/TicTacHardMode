@@ -197,20 +197,20 @@ public class SQMath{
 
         //If any of the list is populated, return it.
         //Also shuffle the arrays. Otherwise the AI will play square 0,0 a lot in the beginning.
-        if(twos.size() > 1){
+        if(twos.size() > 0){
 
             Collections.shuffle(twos);
-            twos.add(new int[] {2,2});
+            twos.add(new int[] {2,-1});
             return twos;
         }
-        if(ones.size() > 1){
+        if(ones.size() > 0){
             Collections.shuffle(ones);
-            ones.add(new int[] {1,1});
+            ones.add(new int[] {1,-1});
             return ones;
         }
-        if(zeros.size() > 1){
+        if(zeros.size() > 0){
             Collections.shuffle(zeros);
-            zeros.add(new int[] {0,0});
+            zeros.add(new int[] {0,-1});
             return zeros;
         }
 
@@ -258,7 +258,6 @@ public class SQMath{
 
     private static void checkColumnsForGoodMoves(char p1, char[][] s, ArrayList<int[]> twos, ArrayList<int[]> ones,
                                                  ArrayList<int[]> zeros) {
-        //Do the same thing, but for the columns (Not very DRY)
         for(int col = 0; col < 3; col++){
             //Check if the first col is winnable for p1 (no squares contains p2)
             if(     (s[0][col] == p1 || s[0][col] == 'G' || s[0][col] == ' ')
@@ -380,15 +379,7 @@ public class SQMath{
 
     }
 
-    private static int isSquarePartOfDiagonal(int x, int y) {
-        if(x == 0 && y == 0) return 1;
-        if(x == 1 && y == 1) return 3;
-        if(x == 2 && y == 2) return 1;
-        if(x == 0 && y == 2) return 2;
-        if(x == 2 && y == 0) return 2;
-        return 0;
 
-    }
 
     public static int[] toWorldCoordinate(int aX, int aY, int sX, int sY){
         int[] ret = new int[2];

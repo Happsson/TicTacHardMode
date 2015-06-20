@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +66,7 @@ public class MainActivity extends Activity {
         int y = 0;
 
         for (int i = 0; i < hv.getChildCount(); i++) {
+            Log.d("INIT-GAME", hv.getChildAt(i).toString());
 
             //Initialize the corresponding button on the board.
             //Pass this mainActivity and the view id to the subsquare.
@@ -88,10 +90,10 @@ public class MainActivity extends Activity {
                 }
             });
 
-            x++;
-            if (x == 9) {
-                y++;
-                x = 0;
+            y++;
+            if (y == 9) {
+                x++;
+                y = 0;
             }
         }
     }
@@ -106,7 +108,7 @@ public class MainActivity extends Activity {
             int y = Integer.parseInt("" + name.charAt(2));
 
 
-            makeMove(y, x);
+            makeMove(x, y);
 
 
         }
