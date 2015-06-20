@@ -139,6 +139,10 @@ public class MainSquare {
         return analysisArray;
     }
 
+    public String getName(){
+        return "{" + position[0] + "," + position[1] + "}";
+    }
+
     public ArrayList<int[]> getPlayerOMoves(){
         return playerOMoves;
     }

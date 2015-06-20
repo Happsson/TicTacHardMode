@@ -198,25 +198,35 @@ public class SQMath{
         //If any of the list is populated, return it.
         //Also shuffle the arrays. Otherwise the AI will play square 0,0 a lot in the beginning.
         if(twos.size() > 0){
-
-            Collections.shuffle(twos);
-            twos.add(new int[] {2,-1});
-            return twos;
+            ArrayList<int[]> ret = removeDuplicates(twos);
+            Collections.shuffle(ret);
+            ret.add(new int[] {2,-1});
+            return ret;
         }
         if(ones.size() > 0){
-            Collections.shuffle(ones);
-            ones.add(new int[] {1,-1});
-            return ones;
+            ArrayList<int[]> ret = removeDuplicates(ones);
+            Collections.shuffle(ret);
+            ret.add(new int[] {1,-1});
+            return ret;
         }
         if(zeros.size() > 0){
-            Collections.shuffle(zeros);
-            zeros.add(new int[] {0,-1});
-            return zeros;
+            ArrayList<int[]> ret = removeDuplicates(zeros);
+            Collections.shuffle(ret);
+            ret.add(new int[] {0,-1});
+            return ret;
         }
 
         //no moves available. Return empty ArrayList;
         return new ArrayList<int[]>();
 
+    }
+
+    private static ArrayList<int[]> removeDuplicates(ArrayList<int[]> list) {
+        ArrayList<int[]> ret = new ArrayList<int[]>();
+        for(int[] element : list){
+            if(!ret.contains(element)) ret.add(element);
+        }
+        return ret;
     }
 
     private static void checkDiagonalForGoodMoves(char p1, char[][] s,
