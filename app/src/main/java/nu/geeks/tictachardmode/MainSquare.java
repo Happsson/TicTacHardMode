@@ -37,6 +37,7 @@ public class MainSquare {
     public MainSquare(int xx, int yy) {
         position = new int[] {xx,yy};
         subSquares = new SubSquare[3][3];
+
         playerXMoves = new ArrayList<int[]>();
         playerOMoves = new ArrayList<int[]>();
 
@@ -115,6 +116,7 @@ public class MainSquare {
             int o;
 
             setAdvancedStatePlayerStatus();
+
             if (playerXMoves.size() > 0) {
                 x = playerXMoves.get(playerXMoves.size() - 1)[0];
             } else {

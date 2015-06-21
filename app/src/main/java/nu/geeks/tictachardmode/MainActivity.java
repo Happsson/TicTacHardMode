@@ -1,6 +1,8 @@
 package nu.geeks.tictachardmode;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -41,11 +43,9 @@ public class MainActivity extends Activity {
            game = extras.getString(INTENTTAG);
         }
         if(game.equals("Player vs Player")){
-            //TODO - game type is player vs player.
-            Toast.makeText(getApplicationContext(), "Player vs Player", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Player vs Player.", Toast.LENGTH_LONG).show();
         }else if(game.equals("Player vs AI")){
-            //TODO - game type is Player vs AI.
-            Toast.makeText(getApplicationContext(), "Player vs AI", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Player vs AI. Player plays as X", Toast.LENGTH_LONG).show();
             ai = true;
         }
 
@@ -66,7 +66,18 @@ public class MainActivity extends Activity {
         int y = 0;
 
         for (int i = 0; i < hv.getChildCount(); i++) {
+
             Log.d("INIT-GAME", hv.getChildAt(i).toString());
+
+            /*
+            00 01 02
+            10 11 12
+            20 21 22
+
+             8 8
+
+
+             */
 
             //Initialize the corresponding button on the board.
             //Pass this mainActivity and the view id to the subsquare.
@@ -82,11 +93,47 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     doMove(v);
+
                     //If game is against ai, make the AI move as soon as the player has made a move.
                     if(board.getActivePlayer() == 'O' && ai){
+
                         int[] aiMove = AI.makeMove(board);
                         makeMove(aiMove[0], aiMove[1]);
+
+                        if(board.getActivePlayer() == 'O'){
+                            //This is not supposed to happen, the AI hasn't played a move.
+                            Log.d("AI-MSG", "AI hasn't made a move! : " + aiMove[0] + ", " + aiMove[1]);
+                        }
                     }
+                    if(board.getGameState() != 'G'){
+                        if(board.getGameState() == 'D'){
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setMessage("The game is draw, no one can win. ")
+                                    .setPositiveButton("Play Again!", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+
+                                    })
+                                    .setTitle("Game Over")
+                                    .show();
+                        }else{
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Game Over")
+                                    .setMessage("" + board.getGameState() + " has won the game!")
+                                    .setPositiveButton("Play Again!",  new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+
+                                    })
+                                    .show();
+                        }
+
+                    }
+
                 }
             });
 
@@ -138,10 +185,6 @@ public class MainActivity extends Activity {
 
                         //Finally, change the infotext.
                         playerInfo.setText("Player " + board.getActivePlayer() + "'s turn");
-
-                        if(winner != 'N'){
-                            Toast.makeText(getApplicationContext(), "" + winner + " has won the game!!", Toast.LENGTH_LONG).show();
-                        }
 
                     }
 

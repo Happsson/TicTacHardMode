@@ -99,7 +99,7 @@ public class SQMath{
             //column
             if (activeSquares[0][0].getState() == c && activeSquares[1][0].getState() == c && activeSquares[2][0].getState() == c)
                 return c;
-            if (activeSquares[0][1].getState() == c && activeSquares[2][1].getState() == c && activeSquares[2][1].getState() == c)
+            if (activeSquares[0][1].getState() == c && activeSquares[1][1].getState() == c && activeSquares[2][1].getState() == c)
                 return c;
             if (activeSquares[0][2].getState() == c && activeSquares[2][2].getState() == c && activeSquares[2][2].getState() == c)
                 return c;
@@ -115,39 +115,70 @@ public class SQMath{
         return 'N';
     }
 
-    /**
-     * Checks wether or not the AI can win the game at this moment.
-     * Returns false if it can't win, true otherwise.
-     *
-     * @param s the mainsquares of the board.
-     * @return true if game is still winnable.
-     */
-    public static boolean isGameWinnableForAI(MainSquare[][] s ){
+    public static boolean isSquareWinnable(MainSquare m, char player, int moveX, int moveY){
 
-        boolean[] rows = {true, true, true};
-        boolean[] cols = {true, true, true};
-        boolean[] dias = {true, true};
-
-
-
-        for(int i = 0; i < 3; i++) {
-            if (!s[0][i].getPlayableFor('O') || !s[1][i].getPlayableFor('O') || !s[2][i].getPlayableFor('O')) cols[i] = false;
-            if (!s[i][0].getPlayableFor('O') || !s[i][1].getPlayableFor('O') || !s[i][2].getPlayableFor('O')) rows[i] = false;
-        }
-        if (!s[0][0].getPlayableFor('O') || !s[1][1].getPlayableFor('O') || !s[2][2].getPlayableFor('O')) dias[0] = false;
-        if (!s[2][0].getPlayableFor('O') || !s[1][1].getPlayableFor('O') || !s[0][2].getPlayableFor('O')) dias[0] = false;
-
-        //iterate through all, if anything is true, game is still winnable for AI.
-        for(int i = 0; i < 3; i++){
-            if(i < 2){
-                if(dias[i]) return true;
+        //Create a char-matrix, representing the mainsquare.
+        char[][] c = new char[3][3];
+        for(int x = 0; x < 3; x++){
+            for(int y = 0; y < 3; y++){
+                c[x][y] = m.getSubSquares()[x][y].getValue();
             }
-            if(cols[i]) return true;
-            if(rows[i]) return true;
         }
-        return false;
-    }
+        //add the move in question
+        c[moveX][moveY] = player;
 
+        //Check if the row, column or diagonal the move is part of is winnable.
+        if(     (c[moveX][0] == player || c[moveX][0] == ' ')
+                &&
+                (c[moveX][1] == player || c[moveX][1] == ' ')
+                &&
+                (c[moveX][2] == player || c[moveX][2] == ' ')){
+            return true;
+        }
+
+        if(     (c[0][moveY] == player || c[0][moveY] == ' ')
+                &&
+                (c[1][moveY] == player || c[1][moveY] == ' ')
+                &&
+                (c[2][moveY] == player || c[2][moveY] == ' ')){
+            return true;
+        }
+        if(     (moveX == 0 && moveY == 0)
+                ||
+                (moveX == 1 && moveY == 1)
+                ||
+                (moveX == 2 && moveY == 2)
+                ){
+            if(     (c[0][0] == player || c[0][0] == ' ')
+                    &&
+                    (c[1][1] == player || c[1][1] == ' ')
+                    &&
+                    (c[2][2] == player || c[2][2] == ' ')){
+                return true;
+
+            }
+
+        }
+        if(     (moveX == 2 && moveY == 0)
+                ||
+                (moveX == 1 && moveY == 1)
+                ||
+                (moveX == 2 && moveY == 0)
+                ){
+            if(     (c[2][0] == player || c[2][0] == ' ')
+                    &&
+                    (c[1][1] == player || c[1][1] == ' ')
+                    &&
+                    (c[0][2] == player || c[0][2] == ' ')){
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
     /**
      * This method finds the moves that makes sense for the player p1 to play.
      * It will return an ArrayList.
@@ -200,7 +231,9 @@ public class SQMath{
         if(twos.size() > 0){
             ArrayList<int[]> ret = removeDuplicates(twos);
             Collections.shuffle(ret);
+
             ret.add(new int[] {2,-1});
+
             return ret;
         }
         if(ones.size() > 0){
@@ -222,9 +255,12 @@ public class SQMath{
     }
 
     private static ArrayList<int[]> removeDuplicates(ArrayList<int[]> list) {
+
         ArrayList<int[]> ret = new ArrayList<int[]>();
-        for(int[] element : list){
-            if(!ret.contains(element)) ret.add(element);
+        for(int[] e1 : list){
+            boolean existsInArray = false;
+            for(int[] e2 : ret) if (e1[0] == e2[0] && e1[1] == e2[1]) existsInArray = true;
+            if(!existsInArray) ret.add(e1);
         }
         return ret;
     }
@@ -353,9 +389,11 @@ public class SQMath{
         //Convert MainSquares to char-matrix.
         char[][] c = new char[3][3];
         for(int xx = 0; xx < 3; xx++){
+
             for(int yy = 0; yy < 3; yy++){
                 c[xx][yy] = m[xx][yy].getState();
             }
+
         }
 
         //Create three ArrayLists
